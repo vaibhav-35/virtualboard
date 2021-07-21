@@ -154,7 +154,7 @@ class drawingCanvas():
     def display(self):
         # Merge the canvas and the frame.
         self.frame = cv.add(self.frame,self.canvas)    
-        cv.imshow('Esc to close, "c" to clear screem, "e" to change modes',self.frame)
+        cv.imshow('Press Esc to close, "c" to clear screem, "e" to change modes',self.frame)
         cv.imshow('canvas',self.canvas)
     
     def takeAction(self,k):
