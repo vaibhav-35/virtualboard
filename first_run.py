@@ -1,3 +1,98 @@
+import cv2 as cv
+import numpy as np
+
+#for multiple cameras
+cameraIdx = 0
+
+
+CamFound = False
+
+while not CamFound:
+    currIdx = 0
+    checkVidSource = cv.VideoCapture(currIdx)
+
+    while True:
+        ret, frame = checkVidSource.read()
+
+        cv.imshow("CurrentSource, Press 's' to use this source. 'n' and 'p' to navigate between sources",frame)
+
+        key = cv.waitKey(1)
+
+        if key == ord('s'):
+            cameraIdx = currIdx
+            CamFound = True
+            break
+        if key == ord('n'):#upper or right arrow key press
+            print("Increase index")
+            currIdx+=1
+            break   
+        if key == ord('p'):#lower or left arrow key press
+            print("Decrease index")
+            
+            if currIdx >=0: 
+                currIdx-=1
+            break
+        if key == 27 :#esc to exit anyway
+            print("esc")
+            CamFound = True
+            break
+
+    if CamFound:
+        checkVidSource.release()
+        cv.destroyAllWindows()
+        break
+
+
+
+cap=cv.VideoCapture(cameraIdx)
+                
+def nothing(x):
+    pass
+
+#Create trackbar to adjust HSV range
+cv.namedWindow("trackbar")
+cv.createTrackbar("L-H","trackbar",0,179,nothing)
+cv.createTrackbar("L-S","trackbar",0,255,nothing)
+cv.createTrackbar("L-V","trackbar",0,255,nothing)
+cv.createTrackbar("U-H","trackbar",179,179,nothing)
+cv.createTrackbar("U-S","trackbar",255,255,nothing)
+cv.createTrackbar("U-V","trackbar",255,255,nothing)
+
+while True:
+    ret,frame =cap.read()
+    cv.putText(frame, 'Adjust sliders till you only see pointer, Press "s" to save', (50, 50), cv.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 2, cv.LINE_4)
+
+    hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)    
+    
+    l_h=cv.getTrackbarPos("L-H","trackbar")
+    l_s=cv.getTrackbarPos("L-S","trackbar")
+    l_v=cv.getTrackbarPos("L-V","trackbar")
+    h_h=cv.getTrackbarPos("U-H","trackbar")
+    h_s=cv.getTrackbarPos("U-S","trackbar")
+    h_v=cv.getTrackbarPos("U-V","trackbar")
+   
+    low=np.array([l_h,l_s,l_v])
+    high=np.array([h_h,h_s,h_v])
+
+    mask=cv.inRange(hsv,low,high) 
+    result=cv.bitwise_and(frame,frame,mask=mask)    
+    cv.imshow("result",result)# If the user presses ESC then exit the program
+    
+    key = cv.waitKey(1)
+    # If the user presses `s` then print and save this array.
+    if key == ord('s'):
+        thearray = [[l_h,l_s,l_v],[h_h, h_s, h_v]]
+        # Save this array as penrange.npy
+        np.save('penrange',thearray)
+        break
+    #if esc pressed exit
+    if key == 27:
+        break
+
+cap.release()
+cv.destroyAllWindows()
+
+
 class drawingCanvas():
     def __init__(self):
         self.penrange = np.load('penrange.npy')
