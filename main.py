@@ -1,7 +1,11 @@
+import cv2 as cv
+import numpy as np
+
+
 class drawingCanvas():
     def __init__(self):
         self.penrange = np.load('penrange.npy')
-        self.cap = cv.VideoCapture(cameraIdx)
+        self.cap = cv.VideoCapture(0)
         self.canvas = None
          
         self.x1,self.y1=0,0
